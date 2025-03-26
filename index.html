@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jokenpô</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .choice {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            border: 1px solid #333;
+            background-color: #eee;
+        }
+        .choice:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jokenpô</h1>
+    <div class="choices">
+        <button class="choice" onclick="play('Pedra')">Pedra</button>
+        <button class="choice" onclick="play('Papel')">Papel</button>
+        <button class="choice" onclick="play('Tesoura')">Tesoura</button>
+    </div>
+    <h2 id="result"></h2>
+    <script>
+        function getComputerChoice() {
+            const choices = ['Pedra', 'Papel', 'Tesoura'];
+            let stats = JSON.parse(localStorage.getItem('playerChoices')) || { Pedra: 0, Papel: 0, Tesoura: 0 };
+            
+            let mostChosen = Object.keys(stats).reduce((a, b) => stats[a] > stats[b] ? a : b);
+            
+            let counterMove = {
+                Pedra: 'Papel',
+                Papel: 'Tesoura',
+                Tesoura: 'Pedra'
+            };
+            
+            let randomFactor = Math.random();
+            if (randomFactor < 0.5) {
+                return counterMove[mostChosen]; // 50% de chance de jogar contra
+            } else {
+                return choices[Math.floor(Math.random() * choices.length)]; // 50% de chance de jogar aleatório
+            }
+        }
+
+        function play(playerChoice) {
+            let stats = JSON.parse(localStorage.getItem('playerChoices')) || { Pedra: 0, Papel: 0, Tesoura: 0 };
+            stats[playerChoice]++;
+            localStorage.setItem('playerChoices', JSON.stringify(stats));
+
+            const computerChoice = getComputerChoice();
+            let result = '';
+            let empate = playerChoice === computerChoice;
+
+            if (empate) {
+                result = 'Empate!';
+            } else if (
+                (playerChoice === 'Pedra' && computerChoice === 'Tesoura') ||
+                (playerChoice === 'Papel' && computerChoice === 'Pedra') ||
+                (playerChoice === 'Tesoura' && computerChoice === 'Papel')
+            ) {
+                result = 'Você venceu!';
+            } else {
+                result = 'Computador venceu!';
+            }
+
+            document.getElementById('result').textContent = `Você escolheu ${playerChoice}. O computador escolheu ${computerChoice}. ${result}`;
+        }
+    </script>
+</body>
+</html>
